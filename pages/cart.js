@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 import Layout from "../components/Layout";
 import { Store } from "../utils/Store";
 import NextLink from "next/link";
@@ -21,12 +21,25 @@ import {
   List,
   ListItem,
 } from "@material-ui/core";
+import axios from "axios";
 
 export default function CartScreen() {
-  const { state } = useContext(Store);
+  const { state, dispatch } = useContext(Store);
   const {
     cart: { cartItems },
   } = state;
+
+  const updateCartHandler = async (item, quantity) => {
+    const { data } = await axios.get(`/api/products/${item._id}`);
+    if (data.countInStock < quantity) {
+      window.alert("Sorry. Product is out of stock");
+      return;
+    }
+    dispatch({ type: "CART_ADD_ITEM", payload: { ...item, quantity } });
+  };
+  const removeItemHandler = (item) => {
+    dispatch({ type: "CART_REMOVE_ITEM", payload: item });
+  };
 
   return (
     <Layout title="Shopping Cart">
@@ -35,7 +48,10 @@ export default function CartScreen() {
       </Typography>
       {cartItems.length === 0 ? (
         <div>
-          Cart is empty. <NextLink href="/">Go shopping</NextLink>
+          Cart is empty.{" "}
+          <NextLink href="/" passHref>
+            <Link>Go shopping</Link>
+          </NextLink>
         </div>
       ) : (
         <Grid container spacing={1}>
@@ -74,7 +90,11 @@ export default function CartScreen() {
                         </NextLink>
                       </TableCell>
                       <TableCell align="right">
-                        <Select value={item.quantity}>
+                        <Select
+                          value={item.quantity}
+                          onChange={(e) =>
+                            updateCartHandler(item, e.target.value)
+                          }>
                           {[...Array(item.countInStock).keys()].map((x) => (
                             <MenuItem key={x + 1} value={x + 1}>
                               {x + 1}
@@ -84,7 +104,10 @@ export default function CartScreen() {
                       </TableCell>
                       <TableCell align="right">${item.price}</TableCell>
                       <TableCell align="right">
-                        <Button variant="contained" color="secondary">
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => removeItemHandler(item)}>
                           x
                         </Button>
                       </TableCell>
