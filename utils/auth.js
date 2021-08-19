@@ -32,4 +32,5 @@ const isAuth = async (req, res, next) => {
     res.status(401).send({ message: "Token is not suppiled" });
   }
 };
+
 export { signToken, isAuth };

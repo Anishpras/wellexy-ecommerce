@@ -4,66 +4,69 @@ import {
   Typography,
   TextField,
   Button,
-} from "@material-ui/core";
-import { useRouter } from "next/router";
-import React, { useContext, useEffect } from "react";
-import Layout from "../components/Layout";
-import { Store } from "../utils/Store";
-import useStyles from "../utils/styles";
-import Cookies from "js-cookie";
-import { Controller, useForm } from "react-hook-form";
-import CheckoutWizard from "../components/CheckoutWizard";
+  Link,
+} from '@material-ui/core';
+import axios from 'axios';
+import { useRouter } from 'next/router';
+import NextLink from 'next/link';
+import React, { useContext, useEffect } from 'react';
+import Layout from '../components/Layout';
+import { Store } from '../utils/Store';
+import useStyles from '../utils/styles';
+import Cookies from 'js-cookie';
+import { Controller, useForm } from 'react-hook-form';
+import { useSnackbar } from 'notistack';
 
-export default function Shipping() {
+export default function Register() {
   const {
     handleSubmit,
     control,
     formState: { errors },
-    setValue,
   } = useForm();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const router = useRouter();
+  const { redirect } = router.query;
   const { state, dispatch } = useContext(Store);
-  const {
-    userInfo,
-    cart: { shippingAddress },
-  } = state;
+  const { userInfo } = state;
   useEffect(() => {
-    if (!userInfo) {
-      router.push("/login?redirect=/shipping");
+    if (userInfo) {
+      router.push('/');
     }
-    setValue("fullName", shippingAddress.fullName);
-    setValue("address", shippingAddress.address);
-    setValue("city", shippingAddress.city);
-    setValue("postalCode", shippingAddress.postalCode);
-    setValue("country", shippingAddress.country);
   }, []);
 
   const classes = useStyles();
-  const submitHandler = ({ fullName, address, city, postalCode, country }) => {
-    dispatch({
-      type: "SAVE_SHIPPING_ADDRESS",
-      payload: { fullName, address, city, postalCode, country },
-    });
-    Cookies.set("shippingAddress", {
-      fullName,
-      address,
-      city,
-      postalCode,
-      country,
-    });
-    router.push("/payment");
+  const submitHandler = async ({ name, email, password, confirmPassword }) => {
+    closeSnackbar();
+    if (password !== confirmPassword) {
+      enqueueSnackbar("Passwords don't match", { variant: 'error' });
+      return;
+    }
+    try {
+      const { data } = await axios.post('/api/users/register', {
+        name,
+        email,
+        password,
+      });
+      dispatch({ type: 'USER_LOGIN', payload: data });
+      Cookies.set('userInfo', data);
+      router.push(redirect || '/');
+    } catch (err) {
+      enqueueSnackbar(
+        err.response.data ? err.response.data.message : err.message,
+        { variant: 'error' }
+      );
+    }
   };
   return (
-    <Layout title="Shipping Address">
-      <CheckoutWizard activeStep={1} />
+    <Layout title="Register">
       <form onSubmit={handleSubmit(submitHandler)} className={classes.form}>
         <Typography component="h1" variant="h1">
-          Shipping Address
+          Register
         </Typography>
         <List>
           <ListItem>
             <Controller
-              name="fullName"
+              name="name"
               control={control}
               defaultValue=""
               rules={{
@@ -74,127 +77,119 @@ export default function Shipping() {
                 <TextField
                   variant="outlined"
                   fullWidth
-                  id="fullName"
-                  label="Full Name"
-                  error={Boolean(errors.fullName)}
+                  id="name"
+                  label="Name"
+                  inputProps={{ type: 'name' }}
+                  error={Boolean(errors.name)}
                   helperText={
-                    errors.fullName
-                      ? errors.fullName.type === "minLength"
-                        ? "Full Name length is more than 1"
-                        : "Full Name is required"
-                      : ""
+                    errors.name
+                      ? errors.name.type === 'minLength'
+                        ? 'Name length is more than 1'
+                        : 'Name is required'
+                      : ''
                   }
-                  {...field}></TextField>
-              )}></Controller>
+                  {...field}
+                ></TextField>
+              )}
+            ></Controller>
           </ListItem>
           <ListItem>
             <Controller
-              name="address"
+              name="email"
               control={control}
               defaultValue=""
               rules={{
                 required: true,
-                minLength: 2,
+                pattern: /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/,
               }}
               render={({ field }) => (
                 <TextField
                   variant="outlined"
                   fullWidth
-                  id="address"
-                  label="Address"
-                  error={Boolean(errors.address)}
+                  id="email"
+                  label="Email"
+                  inputProps={{ type: 'email' }}
+                  error={Boolean(errors.email)}
                   helperText={
-                    errors.address
-                      ? errors.address.type === "minLength"
-                        ? "Address length is more than 1"
-                        : "Address is required"
-                      : ""
+                    errors.email
+                      ? errors.email.type === 'pattern'
+                        ? 'Email is not valid'
+                        : 'Email is required'
+                      : ''
                   }
-                  {...field}></TextField>
-              )}></Controller>
+                  {...field}
+                ></TextField>
+              )}
+            ></Controller>
           </ListItem>
           <ListItem>
             <Controller
-              name="city"
+              name="password"
               control={control}
               defaultValue=""
               rules={{
                 required: true,
-                minLength: 2,
+                minLength: 6,
               }}
               render={({ field }) => (
                 <TextField
                   variant="outlined"
                   fullWidth
-                  id="city"
-                  label="City"
-                  error={Boolean(errors.city)}
+                  id="password"
+                  label="Password"
+                  inputProps={{ type: 'password' }}
+                  error={Boolean(errors.password)}
                   helperText={
-                    errors.city
-                      ? errors.city.type === "minLength"
-                        ? "City length is more than 1"
-                        : "City is required"
-                      : ""
+                    errors.password
+                      ? errors.password.type === 'minLength'
+                        ? 'Password length is more than 5'
+                        : 'Password is required'
+                      : ''
                   }
-                  {...field}></TextField>
-              )}></Controller>
+                  {...field}
+                ></TextField>
+              )}
+            ></Controller>
           </ListItem>
           <ListItem>
             <Controller
-              name="postalCode"
+              name="confirmPassword"
               control={control}
               defaultValue=""
               rules={{
                 required: true,
-                minLength: 2,
+                minLength: 6,
               }}
               render={({ field }) => (
                 <TextField
                   variant="outlined"
                   fullWidth
-                  id="postalCode"
-                  label="Postal Code"
-                  error={Boolean(errors.postalCode)}
+                  id="confirmPassword"
+                  label="Confirm Password"
+                  inputProps={{ type: 'password' }}
+                  error={Boolean(errors.confirmPassword)}
                   helperText={
-                    errors.postalCode
-                      ? errors.postalCode.type === "minLength"
-                        ? "Postal Code length is more than 1"
-                        : "Postal Code is required"
-                      : ""
+                    errors.confirmPassword
+                      ? errors.confirmPassword.type === 'minLength'
+                        ? 'Confirm Password length is more than 5'
+                        : 'Confirm  Password is required'
+                      : ''
                   }
-                  {...field}></TextField>
-              )}></Controller>
-          </ListItem>
-          <ListItem>
-            <Controller
-              name="country"
-              control={control}
-              defaultValue=""
-              rules={{
-                required: true,
-                minLength: 2,
-              }}
-              render={({ field }) => (
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  id="country"
-                  label="Country"
-                  error={Boolean(errors.country)}
-                  helperText={
-                    errors.country
-                      ? errors.country.type === "minLength"
-                        ? "Country length is more than 1"
-                        : "Country is required"
-                      : ""
-                  }
-                  {...field}></TextField>
-              )}></Controller>
+                  {...field}
+                ></TextField>
+              )}
+            ></Controller>
           </ListItem>
           <ListItem>
             <Button variant="contained" type="submit" fullWidth color="primary">
-              Continue
+              Register
             </Button>
+          </ListItem>
+          <ListItem>
+            Already have an account? &nbsp;
+            <NextLink href={`/login?redirect=${redirect || '/'}`} passHref>
+              <Link>Login</Link>
+            </NextLink>
           </ListItem>
         </List>
       </form>

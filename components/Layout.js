@@ -1,10 +1,13 @@
 import React, { useContext } from "react";
+import Head from "next/head";
+import NextLink from "next/link";
 import {
   AppBar,
+  Toolbar,
+  Typography,
   Container,
   Link,
-  Toolbar,
-  createTheme,
+  createMuiTheme,
   ThemeProvider,
   CssBaseline,
   Switch,
@@ -12,20 +15,18 @@ import {
   Button,
   Menu,
   MenuItem,
-  Typography,
 } from "@material-ui/core";
+import useStyles from "../utils/styles";
 import { Store } from "../utils/Store";
 import Cookies from "js-cookie";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import Head from "next/head";
-import NextLink from "next/link";
-import useStyles from "../utils/styles";
+
 export default function Layout({ title, description, children }) {
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const { darkMode, cart, userInfo } = state;
-  const theme = createTheme({
+  const theme = createMuiTheme({
     typography: {
       h1: {
         fontSize: "1.6rem",
@@ -70,9 +71,8 @@ export default function Layout({ title, description, children }) {
   };
   return (
     <div>
-      {" "}
       <Head>
-        <title>{title ? `${title} - Wellexy` : "Wellexy"}</title>
+        <title>{title ? `${title} -  Wellexy` : "Wellexy"}</title>
         {description && <meta name="description" content={description}></meta>}
       </Head>
       <ThemeProvider theme={theme}>
@@ -81,10 +81,9 @@ export default function Layout({ title, description, children }) {
           <Toolbar>
             <NextLink href="/" passHref>
               <Link>
-                <Typography className={classes.brand}>amazona</Typography>
+                <Typography className={classes.brand}>Wellexy</Typography>
               </Link>
             </NextLink>
-
             <div className={classes.grow}></div>
             <div>
               <Switch
@@ -135,7 +134,7 @@ export default function Layout({ title, description, children }) {
         </AppBar>
         <Container className={classes.main}>{children}</Container>
         <footer className={classes.footer}>
-          <Typography>All rights reserved. Next Amazona.</Typography>
+          <Typography>All rights reserved. Next Wellexy.</Typography>
         </footer>
       </ThemeProvider>
     </div>

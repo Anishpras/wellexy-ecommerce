@@ -1,10 +1,6 @@
-import React, { useContext } from "react";
-import Product from "../../models/Product";
-import db from "../../utils/db";
-import Layout from "../../components/Layout";
-import useStyles from "../../utils/styles";
-import NextLink from "next/link";
-import Image from "next/image";
+import React, { useContext } from 'react';
+import NextLink from 'next/link';
+import Image from 'next/image';
 import {
   Grid,
   Link,
@@ -13,30 +9,35 @@ import {
   Typography,
   Card,
   Button,
-} from "@material-ui/core";
-import axios from "axios";
-import { Store } from "../../utils/Store";
-import { useRouter } from "next/router";
+} from '@material-ui/core';
+import Layout from '../../components/Layout';
+import useStyles from '../../utils/styles';
+import Product from '../../models/Product';
+import db from '../../utils/db';
+import axios from 'axios';
+import { Store } from '../../utils/Store';
+import { useRouter } from 'next/router';
+
 export default function ProductScreen(props) {
   const router = useRouter();
   const { state, dispatch } = useContext(Store);
   const { product } = props;
   const classes = useStyles();
-
   if (!product) {
-    return <div>Product not found</div>;
+    return <div>Product Not Found</div>;
   }
   const addToCartHandler = async () => {
     const existItem = state.cart.cartItems.find((x) => x._id === product._id);
     const quantity = existItem ? existItem.quantity + 1 : 1;
     const { data } = await axios.get(`/api/products/${product._id}`);
     if (data.countInStock < quantity) {
-      window.alert("Sorry. Product is out of stock");
+      window.alert('Sorry. Product is out of stock');
       return;
     }
-    dispatch({ type: "CART_ADD_ITEM", payload: { ...product, quantity } });
-    router.push("/cart");
+    dispatch({ type: 'CART_ADD_ITEM', payload: { ...product, quantity } });
+    router.push('/cart');
   };
+
   return (
     <Layout title={product.name} description={product.description}>
       <div className={classes.section}>
@@ -53,7 +54,8 @@ export default function ProductScreen(props) {
             alt={product.name}
             width={640}
             height={640}
-            layout="responsive"></Image>
+            layout="responsive"
+          ></Image>
         </Grid>
         <Grid item md={3} xs={12}>
           <List>
@@ -98,7 +100,7 @@ export default function ProductScreen(props) {
                   </Grid>
                   <Grid item xs={6}>
                     <Typography>
-                      {product.countInStock > 0 ? "In stock" : "Unavailable"}
+                      {product.countInStock > 0 ? 'In stock' : 'Unavailable'}
                     </Typography>
                   </Grid>
                 </Grid>
@@ -108,7 +110,8 @@ export default function ProductScreen(props) {
                   fullWidth
                   variant="contained"
                   color="primary"
-                  onClick={addToCartHandler}>
+                  onClick={addToCartHandler}
+                >
                   Add to cart
                 </Button>
               </ListItem>
