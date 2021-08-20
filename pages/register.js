@@ -89,7 +89,7 @@ export default function Register() {
                       : ""
                   }
                   {...field}></TextField>
-              )}></Controller>{" "}
+              )}></Controller>
           </ListItem>
           <ListItem>
             <Controller
@@ -116,7 +116,7 @@ export default function Register() {
                       : ""
                   }
                   {...field}></TextField>
-              )}></Controller>{" "}
+              )}></Controller>
           </ListItem>
           <ListItem>
             <Controller
@@ -143,7 +143,7 @@ export default function Register() {
                       : ""
                   }
                   {...field}></TextField>
-              )}></Controller>{" "}
+              )}></Controller>
           </ListItem>
           <ListItem>
             <Controller
@@ -170,7 +170,7 @@ export default function Register() {
                       : ""
                   }
                   {...field}></TextField>
-              )}></Controller>{" "}
+              )}></Controller>
           </ListItem>
           <ListItem>
             <Button variant="contained" type="submit" fullWidth color="primary">

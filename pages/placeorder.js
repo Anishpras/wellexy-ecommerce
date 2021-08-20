@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
-import Layout from '../components/Layout';
-import { Store } from '../utils/Store';
-import NextLink from 'next/link';
-import Image from 'next/image';
+import React, { useContext, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import Layout from "../components/Layout";
+import { Store } from "../utils/Store";
+import NextLink from "next/link";
+import Image from "next/image";
 import {
   Grid,
   TableContainer,
@@ -19,14 +19,14 @@ import {
   Card,
   List,
   ListItem,
-} from '@material-ui/core';
-import axios from 'axios';
-import { useRouter } from 'next/router';
-import useStyles from '../utils/styles';
-import CheckoutWizard from '../components/CheckoutWizard';
-import { useSnackbar } from 'notistack';
-import { getError } from '../utils/error';
-import Cookies from 'js-cookie';
+} from "@material-ui/core";
+import axios from "axios";
+import { useRouter } from "next/router";
+import useStyles from "../utils/styles";
+import CheckoutWizard from "../components/CheckoutWizard";
+import { useSnackbar } from "notistack";
+import { getError } from "../utils/error";
+import Cookies from "js-cookie";
 
 function PlaceOrder() {
   const classes = useStyles();
@@ -46,10 +46,10 @@ function PlaceOrder() {
 
   useEffect(() => {
     if (!paymentMethod) {
-      router.push('/payment');
+      router.push("/payment");
     }
     if (cartItems.length === 0) {
-      router.push('/cart');
+      router.push("/cart");
     }
   }, []);
   const { closeSnackbar, enqueueSnackbar } = useSnackbar();
@@ -59,9 +59,9 @@ function PlaceOrder() {
     try {
       setLoading(true);
       const { data } = await axios.post(
-        '/api/orders',
+        "/api/orders",
         {
-          orderOItems: cartItems,
+          orderItems: cartItems,
           shippingAddress,
           paymentMethod,
           itemsPrice,
@@ -75,17 +75,17 @@ function PlaceOrder() {
           },
         }
       );
-      dispatch({ type: 'CART_CLEAR' });
-      Cookies.remove('cartItems');
+      dispatch({ type: "CART_CLEAR" });
+      Cookies.remove("cartItems");
       setLoading(false);
       router.push(`/order/${data._id}`);
     } catch (err) {
       setLoading(false);
-      enqueueSnackbar(getError(err), { variant: 'error' });
+      enqueueSnackbar(getError(err), { variant: "error" });
     }
   };
   return (
-    <Layout title="Shopping Cart">
+    <Layout title="Place Order">
       <CheckoutWizard activeStep={3}></CheckoutWizard>
       <Typography component="h1" variant="h1">
         Place Order
@@ -101,8 +101,8 @@ function PlaceOrder() {
                 </Typography>
               </ListItem>
               <ListItem>
-                {shippingAddress.fullName}, {shippingAddress.address},{' '}
-                {shippingAddress.city}, {shippingAddress.postalCode},{' '}
+                {shippingAddress.fullName}, {shippingAddress.address},{" "}
+                {shippingAddress.city}, {shippingAddress.postalCode},{" "}
                 {shippingAddress.country}
               </ListItem>
             </List>
@@ -145,8 +145,7 @@ function PlaceOrder() {
                                   src={item.image}
                                   alt={item.name}
                                   width={50}
-                                  height={50}
-                                ></Image>
+                                  height={50}></Image>
                               </Link>
                             </NextLink>
                           </TableCell>
@@ -228,8 +227,7 @@ function PlaceOrder() {
                   onClick={placeOrderHandler}
                   variant="contained"
                   color="primary"
-                  fullWidth
-                >
+                  fullWidth>
                   Place Order
                 </Button>
               </ListItem>
